@@ -1,6 +1,10 @@
-import psycopg2
 import random
-import string
+
+import numpy as np
+import psycopg2
+from faker import Faker
+
+fake = Faker()
 
 # Verbindung zur PostgreSQL-Datenbank herstellen
 def connect_to_postgres():
@@ -18,8 +22,7 @@ def connect_to_postgres():
 
 # Funktion zum Generieren eines zufälligen Passworts
 def generate_password():
-    letters_and_digits = string.ascii_letters + string.digits
-    return ''.join(random.choice(letters_and_digits) for i in range(10))
+    return f"{fake.word()}-{fake.word()}-{fake.word()}"
 
 # Funktion zum Erstellen eines Benutzers und einer Tabelle für einen Studenten
 def create_user_and_table(connection, student_id):
@@ -33,8 +36,23 @@ def create_user_and_table(connection, student_id):
         cursor.execute("CREATE ROLE student{} WITH LOGIN PASSWORD %s".format(student_id), (password,))
         
         # Tabelle für den Studenten erstellen
-        cursor.execute("CREATE TABLE student{}_table (id SERIAL PRIMARY KEY, data TEXT)".format(student_id))
-        
+        cursor.execute("CREATE TABLE student{}_table (id SERIAL PRIMARY KEY, longitude FLOAT, latitude FLOAT, score FLOAT)".format(student_id))
+
+        # Einträge erstellen
+        num_entries = int(student_id)
+        for i in range(num_entries):
+            # Zufällige longitude und latitude wählen
+            longitude = random.uniform(-180, 180)
+            latitude = random.uniform(-90, 90)
+            # Score aus Normalverteilung generieren
+            mean = num_entries
+            std = 0.01 * num_entries
+            score = int(np.random.normal(mean, std))
+            
+            # Eintrag in die Tabelle einfügen
+            cursor.execute("INSERT INTO student{}_table (longitude, latitude, score) VALUES (%s, %s, %s)".format(student_id), (longitude, latitude, score))
+
+        print(f"In Tabelle 'student{student_id}_table' wurden {num_entries} erfolreich Einträge gemacht.")
         # Berechtigungen setzen, damit der Student nur auf seine Tabelle zugreifen kann
         cursor.execute("GRANT ALL PRIVILEGES ON TABLE student{}_table TO student{}".format(student_id, student_id))
         
