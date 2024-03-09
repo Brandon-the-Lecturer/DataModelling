@@ -28,8 +28,7 @@ def create_user_and_table(connection, student_id):
         
         # Zufälliges Passwort generieren
         password = generate_password()
-        print(f"{student_id}:{password}")
-        
+    
         # Benutzer anlegen
         cursor.execute("CREATE ROLE student{} WITH LOGIN PASSWORD %s".format(student_id), (password,))
         
