@@ -68,18 +68,6 @@ def create_user_and_table(connection, student_id):
 # Liste der Matrikelnummern
 matrikelnummern = [1001, 1002, 1003, 1004]  # Beispielwerte, ersetzen Sie diese durch Ihre eigene Liste
 
-# # PostgreSQL-Verbindung herstellen
-# connection = connect_to_postgres()
-
-# if connection:
-#     # Benutzer und Tabelle für jeden Studenten erstellen
-#     for student_id in matrikelnummern:
-#         create_user_and_table(connection, student_id)
-        
-#     # Verbindung zur PostgreSQL-Datenbank schließen
-#     connection.close()
-# else:
-#     print("Fehler beim Herstellen der Verbindung zur PostgreSQL-Datenbank.")
 
 
 # CLI-Parser erstellen
@@ -98,26 +86,23 @@ def main():
     # PostgreSQL-Verbindung herstellen
     connection = connect_to_postgres()
 
-    if args.build:
-        if connection:
-            # Tabelle mit Einträgen erstellen
-            # create_table_with_entries(connection, num_entries=10)
-            # Verbindung zur PostgreSQL-Datenbank schließen
-            print("Tabellen erstellen.")
-            connection.close()
+    if connection:
+        if args.build:
+                # Tabelle mit Einträgen erstellen
+                # create_table_with_entries(connection, num_entries=10)
+                # Verbindung zur PostgreSQL-Datenbank schließen
+                print("Tabellen erstellen.")
+                connection.close()
+        elif args.tear_down:
+                # Tabelle löschen
+                # tear_down_table(connection)
+                print("Tabellen löschen.")
+                # Verbindung zur PostgreSQL-Datenbank schließen
+                connection.close()
         else:
-            print("Fehler beim Herstellen der Verbindung zur PostgreSQL-Datenbank.")
-    elif args.tear_down:
-        if connection:
-            # Tabelle löschen
-            # tear_down_table(connection)
-            print("Tabellen löschen.")
-            # Verbindung zur PostgreSQL-Datenbank schließen
-            connection.close()
-        else:
-            print("Fehler beim Herstellen der Verbindung zur PostgreSQL-Datenbank.")
+            print("Bitte geben Sie entweder --build oder --tear_down an.")
     else:
-        print("Bitte geben Sie entweder --build oder --tear_down an.")
+        print("Fehler beim Herstellen der Verbindung zur PostgreSQL-Datenbank.")
 
 if __name__ == "__main__":
     main()
