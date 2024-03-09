@@ -33,6 +33,24 @@ def connect_to_postgres():
 def generate_password():
     return f"{fake.word()}-{fake.word()}-{fake.word()}"
 
+def save_credentials_to_file(student_id, password):
+    with open("credentials.txt", "a") as file:
+        file.write(f"{student_id}, {password}\n")
+
+def remove_credentials_from_file(student_id):
+    # Liste zum Speichern der verbleibenden Zeilen
+    remaining_lines = []
+    with open("credentials.txt", "r") as file:
+        for line in file:
+            # Überprüfen, ob die Zeile die Anmeldeinformationen für den aktuellen Studenten enthält
+            if not line.startswith(f"{student_id}, "):
+                remaining_lines.append(line)
+    
+    # Schreiben der verbleibenden Zeilen in die Datei, um die Anmeldeinformationen zu aktualisieren
+    with open("credentials.txt", "w") as file:
+        for line in remaining_lines:
+            file.write(line)
+
 # Funktion zum Erstellen eines Benutzers und einer Tabelle für einen Studenten
 def create_user_and_table(connection, student_id):
     try:
@@ -68,6 +86,9 @@ def create_user_and_table(connection, student_id):
         # Verbindung bestätigen und Änderungen speichern
         connection.commit()
         
+        # Anmeldeinformationen in die Datei speichern
+        save_credentials_to_file(student_id, password)
+        
         print("Benutzer für Student {} erfolgreich erstellt.".format(student_id))
         
     except (Exception, psycopg2.Error) as error:
@@ -86,12 +107,14 @@ def drop_user_and_table(connection, student_id):
         
         # Verbindung bestätigen und Änderungen speichern
         connection.commit()
+
+        # Anmeldeinformationen aus der Datei entfernen
+        remove_credentials_from_file(student_id)
         
         print("Benutzer und Tabelle für Student {} erfolgreich gelöscht.".format(student_id))
         
     except (Exception, psycopg2.Error) as error:
         print("Fehler beim Löschen von Benutzer und Tabelle für Student {}: ".format(student_id), error)
-
 
 # CLI-Parser erstellen
 def create_cli_parser():
