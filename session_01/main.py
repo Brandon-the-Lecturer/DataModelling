@@ -8,11 +8,13 @@ from faker import Faker
 PATH = "student_ids.txt"
 
 fake = Faker()
+random.seed(3)
 
 # Einlesen einer txt-Datei als Liste
 def read_txt_to_list(txt_file):
     with open(txt_file, 'r') as file:
-        data = [line.strip() for line in file.readlines()]
+        data = [line.split()[0] for line in file.readlines()]
+        data = [int(f"{random.randint(10,80)}{no}") for no in data]
     return data
 
 # Verbindung zur PostgreSQL-Datenbank herstellen
